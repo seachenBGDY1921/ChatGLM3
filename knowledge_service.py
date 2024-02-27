@@ -12,9 +12,9 @@ work_dir = '/kaggle'
 nltk.data.path.append(os.path.join(work_dir, 'nltk_data'))
 
 from service.config import LangChainCFG
-from langchain.vectorstores import FAISS
-from langchain.text_splitter import CharacterTextSplitter, MarkdownTextSplitter
-from langchain.document_loaders import UnstructuredFileLoader, UnstructuredMarkdownLoader, UnstructuredPDFLoader
+from langchain_community.vectorstores import FAISS
+from langchain_community.text_splitter import CharacterTextSplitter, MarkdownTextSplitter
+from langchain_community.document_loaders import UnstructuredFileLoader, UnstructuredMarkdownLoader, UnstructuredPDFLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from rapidocr_onnxruntime import RapidOCR
 
