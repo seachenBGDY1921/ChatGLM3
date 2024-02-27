@@ -64,7 +64,7 @@ class LangChainApplication(object):
 
 
 # -------------------------------------------
-from service.config import LangChainCFG
+from config import LangChainCFG
 
 config = LangChainCFG()
 application = LangChainApplication(config)
