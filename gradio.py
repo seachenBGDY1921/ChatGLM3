@@ -119,7 +119,7 @@ def parse_text(text):
     text = "".join(lines)
     return text
 
-
+# 之前已经用了，防止重复
 # 采用流聊天方式（stream_chat）调用ChatGLM模型，使得生成答案有逐字生成的效果
 # def predict(input, chatbot, max_length, top_p, temperature, history, past_key_values):
 #     chatbot.append((parse_text(input), parse_text(input)))
