@@ -8,14 +8,15 @@ vector service
 import os
 import nltk
 
-work_dir = '/home/ma-user/work'
+work_dir = '/kaggle'
 nltk.data.path.append(os.path.join(work_dir, 'nltk_data'))
 
 from service.config import LangChainCFG
 from langchain.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter, MarkdownTextSplitter
-from langchain.document_loaders import UnstructuredFileLoader, UnstructuredMarkdownLoader
+from langchain.document_loaders import UnstructuredFileLoader, UnstructuredMarkdownLoader, UnstructuredPDFLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from rapidocr_onnxruntime import RapidOCR
 
 
 class KnowledgeService(object):
@@ -47,6 +48,22 @@ class KnowledgeService(object):
                 doc = loader.load()
                 split_doc = markdown_splitter.split_documents(doc)
                 docs.extend(split_doc)
+            elif doc.endswith('.pdf'):
+                print(doc)
+                loader = UnstructuredPDFLoader(f'{self.docs_path}/{doc}', mode="elements")
+                doc = loader.load()
+                split_doc = markdown_splitter.split_documents(doc)
+                docs.extend(split_doc)
+            elif doc.endswith('.jpg'):
+                print(doc)
+                ocr = RapidOCR()
+                result, _ = ocr(f'{self.docs_path}/{doc}')
+                img_docs = ""
+                if result:
+                    ocr_result = [line[1] for line in result]
+                    img_docs += "\n".join(ocr_result)
+                split_docs = text_splitter.create_documents([img_docs])
+                docs.extend(split_docs)
 
         self.knowledge_base = FAISS.from_documents(docs, self.embeddings)
 
@@ -64,6 +81,18 @@ class KnowledgeService(object):
             doc = loader.load()
             markdown_splitter = MarkdownTextSplitter(chunk_size=200, chunk_overlap=20)
             split_doc = markdown_splitter.split_documents(doc)
+        elif doc.endswith('.pdf'):
+            print(document_path)
+            loader = UnstructuredPDFLoader(document_path, mode="elements")
+            doc = loader.load()
+            text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=20)
+            split_doc = text_splitter.split_documents(doc)
+        elif doc.endswith('.jpg'):
+            print(document_path)
+            loader = UnstructuredPDFLoader(document_path, mode="elements")
+            docs = self.init_knowledge_base(jpg_file)
+            text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=20)
+            split_doc = text_splitter.create_documents([docs])
 
         if not self.knowledge_base:
             self.knowledge_base = FAISS.from_documents(split_doc, self.embeddings)

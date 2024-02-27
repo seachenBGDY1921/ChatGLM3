@@ -1,10 +1,10 @@
 
+
 from langchain.chains import RetrievalQA
 from langchain.prompts.prompt import PromptTemplate
 
-from service.config import LangChainCFG
 from service.chatglm_service import ChatGLMService
-from service.knowledge_service import KnowledgeService
+from ChatGLM3.knowledge_service import KnowledgeService
 
 
 class LangChainApplication(object):
@@ -64,7 +64,7 @@ class LangChainApplication(object):
 
 
 # -------------------------------------------
-from config import LangChainCFG
+from service.config import LangChainCFG
 
 config = LangChainCFG()
 application = LangChainApplication(config)
@@ -83,9 +83,8 @@ print(result2)
 # --------------------------------------------
 # 编写Gradio调用函数,开发Gradio界面
 
-import mdtex2html
 from service.config import LangChainCFG
-from service.configuration_chatglm import ChatGLMConfig
+# from service.configuration_chatglm import ChatGLMConfig
 
 
 # 将文本中的字符转为网页上可以支持的字符，避免被误认为是HTML标签
