@@ -4,7 +4,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts.prompt import PromptTemplate
 
 from service.chatglm_service import ChatGLMService
-from ChatGLM3.knowledge_service import KnowledgeService
+from knowledge_service import KnowledgeService
 
 
 class LangChainApplication(object):
