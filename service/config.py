@@ -11,7 +11,7 @@ import os
 class LangChainCFG:
     work_dir = '/kaggle'
 
-    llm_model_name = 'chatglm3-6b'
+    llm_model_name = 'model'
     llm_model_path = os.path.join(work_dir, llm_model_name)
 
     embedding_model_name = 'text2vec-large-chinese'
