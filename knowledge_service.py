@@ -29,8 +29,8 @@ class KnowledgeService(object):
 
     def __init__(self):
         self.knowledge_base = None
-        self.docs_path = '/kaggle/chatglm3/docs/'
-        self.knowledge_base_path = '/kaggle/chatglm3/docs/'
+        self.docs_path = '/kaggle/ChatGLM3/docs/'
+        self.knowledge_base_path = '/kaggle/ChatGLM3/docs/'
         self.embeddings = '/kaggle/text2vec-large-chinese'
 
 
