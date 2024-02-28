@@ -20,12 +20,20 @@ from rapidocr_onnxruntime import RapidOCR
 
 
 class KnowledgeService(object):
-    def __init__(self, config):
-        self.config = config
+    # def __init__(self, config):
+    #     self.config = config
+    #     self.knowledge_base = None
+    #     self.docs_path = self.config.docs_path
+    #     self.knowledge_base_path = self.config.knowledge_base_path
+    #     self.embeddings = HuggingFaceEmbeddings(model_name=self.config.embedding_model_path)
+
+    def __init__(self):
         self.knowledge_base = None
-        self.docs_path = self.config.docs_path
-        self.knowledge_base_path = self.config.knowledge_base_path
-        self.embeddings = HuggingFaceEmbeddings(model_name=self.config.embedding_model_path)
+        self.docs_path = os.path.join(os.path.dirname(__file__), "..", "docs")
+        self.knowledge_base_path = os.path.join(os.path.dirname(__file__), "..", "docs")
+        self.embeddings = 'text2vec-large-chinese'
+
+
 
     def init_knowledge_base(self):
         """
