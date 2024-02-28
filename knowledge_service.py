@@ -31,7 +31,7 @@ class KnowledgeService(object):
         self.knowledge_base = None
         self.docs_path = os.path.join(os.path.dirname(__file__), "..", "docs")
         self.knowledge_base_path = os.path.join(os.path.dirname(__file__), "..", "docs")
-        self.embeddings = 'text2vec-large-chinese'
+        self.embeddings = '/kaggle/text2vec-large-chinese'
 
 
 
