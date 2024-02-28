@@ -108,7 +108,7 @@ class KnowledgeService(object):
         else:
             self.knowledge_base.add_documents(split_doc)
 
-    def load_knowledge_base(self, path):k
+    def load_knowledge_base(self, path):
         if path is None:
             self.knowledge_base = FAISS.load_local(self.knowledge_base_path, self.embeddings)
         else:
