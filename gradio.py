@@ -70,10 +70,11 @@ class LangChainApplication(object):
 
 
 # -------------------------------------------
-from service.config import LangChainCFG
-
-config = LangChainCFG()
-application = LangChainApplication(config)
+# from service.config import LangChainCFG
+#
+# config = LangChainCFG()
+# application = LangChainApplication(config)
+application = LangChainApplication()
 
 result = application.get_llm_answer('A25项目要求')
 print('\nresult of llm:\n')
@@ -89,8 +90,8 @@ print(result2)
 # --------------------------------------------
 # 编写Gradio调用函数,开发Gradio界面
 
-from service.config import LangChainCFG
-# from service.configuration_chatglm import ChatGLMConfig
+# from service.config import LangChainCFG
+# # from service.configuration_chatglm import ChatGLMConfig
 
 
 # 将文本中的字符转为网页上可以支持的字符，避免被误认为是HTML标签
@@ -138,9 +139,9 @@ def parse_text(text):
 #         yield chatbot, history, past_key_values
 
 # 在这里定义 application
-config = LangChainCFG()
-application = LangChainApplication(config)
-
+# config = LangChainCFG()
+# application = LangChainApplication(config)
+application = LangChainApplication()
 
 # 1.#采用流聊天方式（stream_chat）调用本地自定义模型，使得生成答案有逐字生成的效果
 
