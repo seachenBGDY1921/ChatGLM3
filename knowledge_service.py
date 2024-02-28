@@ -30,8 +30,8 @@ class KnowledgeService(object):
     def __init__(self):
         self.knowledge_base = None
         self.docs_path = '/kaggle/ChatGLM3/docs/'
-        self.knowledge_base_path = '/kaggle/ChatGLM3/docs/'
-        self.embeddings = '/kaggle/text2vec-large-chinese'
+        self.knowledge_base_path = '/kaggle/ChatGLM3/knowledge_base/'
+        self.embeddings = '/kaggle/text2vec-large-chinese/'
 
 
 
@@ -72,6 +72,7 @@ class KnowledgeService(object):
                     img_docs += "\n".join(ocr_result)
                 split_docs = text_splitter.create_documents([img_docs])
                 docs.extend(split_docs)
+
 
         self.knowledge_base = FAISS.from_documents(docs, self.embeddings)
 
