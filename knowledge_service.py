@@ -31,8 +31,8 @@ class KnowledgeService(object):
         self.knowledge_base = None
         self.docs_path = '/kaggle/ChatGLM3/docs/'
         self.knowledge_base_path = '/kaggle/ChatGLM3/knowledge_base/'
-        self.embeddings = '/kaggle/text2vec-large-chinese/'
-
+        # self.embeddings = '/kaggle/text2vec-large-chinese'
+        self.embeddings = 'text2vec-large-chinese'
 
 
     def init_knowledge_base(self):
@@ -108,7 +108,7 @@ class KnowledgeService(object):
         else:
             self.knowledge_base.add_documents(split_doc)
 
-    def load_knowledge_base(self, path):
+    def load_knowledge_base(self, path):k
         if path is None:
             self.knowledge_base = FAISS.load_local(self.knowledge_base_path, self.embeddings)
         else:
