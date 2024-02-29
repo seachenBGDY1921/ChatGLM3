@@ -32,7 +32,7 @@ class KnowledgeService(object):
         self.docs_path = '/kaggle/ChatGLM3/docs/'
         self.knowledge_base_path = '/kaggle/ChatGLM3/knowledge_base/'
         # self.embeddings = '/kaggle/text2vec-large-chinese'
-        self.embeddings = HuggingFaceEmbeddings(model_name="text2vec-large-chinese")
+        self.embeddings = HuggingFaceEmbeddings(model_name="GanymedeNil/text2vec-large-chinese")
     #     与这个绝对路径无关
 
 
