@@ -32,7 +32,8 @@ class KnowledgeService(object):
         self.docs_path = '/kaggle/ChatGLM3/docs/'
         self.knowledge_base_path = '/kaggle/ChatGLM3/knowledge_base/'
         # self.embeddings = '/kaggle/text2vec-large-chinese'
-        self.embeddings = 'text2vec-large-chinese'
+        self.embeddings = '/kaggle/text2vec-large-chinese'
+    #     与这个绝对路径无关
 
 
     def init_knowledge_base(self):
@@ -73,7 +74,7 @@ class KnowledgeService(object):
                 split_docs = text_splitter.create_documents([img_docs])
                 docs.extend(split_docs)
 
-
+        # 这里调用出问题，
         self.knowledge_base = FAISS.from_documents(docs, self.embeddings)
 
     def add_document(self, document_path):

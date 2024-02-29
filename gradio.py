@@ -1,7 +1,7 @@
 
 from langchain.chains import RetrievalQA
 from langchain.prompts.prompt import PromptTemplate
-
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from service.chatglm_service import ChatGLMService
 from knowledge_service import KnowledgeService
 
