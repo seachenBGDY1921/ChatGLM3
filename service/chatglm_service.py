@@ -50,6 +50,7 @@ class ChatGLMService(LLM):
             model_name_or_path,
             trust_remote_code=True
         )
-        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True).half().cuda()
+        # self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True).half().cuda()
+        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True, device_map="auto").eval()
         self.model = self.model.eval()
 
