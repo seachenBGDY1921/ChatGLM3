@@ -89,6 +89,7 @@ def main(
 
     if 'tool_history' not in st.session_state:
         st.session_state.tool_history = []
+
     if 'calling_tool' not in st.session_state:
         st.session_state.calling_tool = False
 

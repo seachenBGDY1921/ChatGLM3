@@ -1,3 +1,5 @@
+# 修改了的绝对路径，MODEL_PATH行
+
 from __future__ import annotations
 
 import os
@@ -15,7 +17,7 @@ from conversation import Conversation
 
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
-MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+MODEL_PATH = os.environ.get('MODEL_PATH', '/kaggle/chatglm3-6b')
 PT_PATH = os.environ.get('PT_PATH', None)
 PRE_SEQ_LEN = int(os.environ.get("PRE_SEQ_LEN", 128))
 TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
@@ -123,9 +125,13 @@ def stream_chat(
 
 
 class HFClient(Client):
+
+    # 可修改处
+
     def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None):
         self.model_path = model_path
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+
 
         if pt_checkpoint is not None and os.path.exists(pt_checkpoint):
             config = AutoConfig.from_pretrained(

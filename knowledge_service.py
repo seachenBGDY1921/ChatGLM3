@@ -6,10 +6,10 @@ vector service
 """
 
 import os
-import nltk
+# import nltk
 
-work_dir = '/kaggle'
-nltk.data.path.append(os.path.join(work_dir, 'nltk_data'))
+# work_dir = '/kaggle'
+# nltk.data.path.append(os.path.join(work_dir, 'nltk_data'))
 
 
 from langchain_community.vectorstores import FAISS
