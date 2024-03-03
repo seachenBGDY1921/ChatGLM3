@@ -55,7 +55,7 @@ class ChatGLMService(LLM):
         # self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True, device_map="auto").eval()
         # self.model = self.model.eval()
 
-        from utils import load_model_on_gpus
+        from utils_service import load_model_on_gpus
         self.model = load_model_on_gpus("THUDM/chatglm3-6b", num_gpus=2)
         self.model = self.model.eval()
 
