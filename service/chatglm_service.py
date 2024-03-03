@@ -46,7 +46,7 @@ class ChatGLMService(LLM):
         return response
 
     def load_model(self,
-                   model_name_or_path: str = "chatglm3-6b"):
+                   model_name_or_path: str = "THUDM/chatglm3-6b"):
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path,
             trust_remote_code=True
