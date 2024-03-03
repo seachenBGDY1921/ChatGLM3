@@ -4,6 +4,7 @@
 """
 ChatGLM service
 """
+import streamlit as st
 
 from typing import Dict, Union, Optional
 from typing import List
@@ -12,7 +13,7 @@ from langchain.llms.base import LLM
 from langchain.llms.utils import enforce_stop_tokens
 from transformers import AutoModel, AutoTokenizer
 
-
+@st.cache_resource
 class ChatGLMService(LLM):
     max_token: int = 10000
     temperature: float = 0.1

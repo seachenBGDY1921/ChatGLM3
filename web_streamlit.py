@@ -7,6 +7,7 @@ from knowledge_service import KnowledgeService
 
 
 # 定义LangChainApplication类
+
 class LangChainApplication(object):
 
     def __init__(self):
