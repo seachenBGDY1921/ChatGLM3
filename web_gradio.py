@@ -12,7 +12,7 @@ class LangChainApplication(object):
 
         self.llm_service = ChatGLMService()
 
-        self.llm_service.load_model(model_name_or_path='/kaggle/chatglm3-6b')
+        self.llm_service.load_model()
 
         self.knowledge_service = KnowledgeService()
     # 获取大语言模型返回的答案（基于本地知识库查询）

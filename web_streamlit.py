@@ -12,7 +12,7 @@ class LangChainApplication(object):
     def __init__(self):
         self.llm_service = ChatGLMService()
 
-        self.llm_service.load_model(model_name_or_path='/kaggle/chatglm3-6b')
+        self.llm_service.load_model()
 
         self.knowledge_service = KnowledgeService()
 
