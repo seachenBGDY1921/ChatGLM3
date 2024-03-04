@@ -33,6 +33,7 @@ class KnowledgeService(object):
         self.knowledge_base_path = '/kaggle/ChatGLM3/knowledge_base/'
         # self.embeddings = '/kaggle/text2vec-large-chinese'
         self.embeddings = HuggingFaceEmbeddings(model_name='shibing624/text2vec-base-chinese')
+    #     看看显存够不够
     #     与这个绝对路径无关
 
 

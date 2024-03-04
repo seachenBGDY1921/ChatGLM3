@@ -6,6 +6,14 @@ from service.chatglm_service import ChatGLMService
 from knowledge_service import KnowledgeService
 
 
+# 初始化 Streamlit 应用配置
+st.set_page_config(
+    page_title="ChatGLM3-6B Streamlit Simple Demo",
+    page_icon=":robot:",
+    layout="wide"
+)
+
+
 # 定义LangChainApplication类
 
 class LangChainApplication(object):
@@ -67,13 +75,17 @@ class LangChainApplication(object):
 
 # 创建应用程序实例
 application = LangChainApplication()
+result1 = application.get_llm_answer('请推荐苏州的三个最热门的景点？')
+print('\nresult of ChatGLM3:\n')
+print(result1)
 
-# 初始化 Streamlit 应用配置
-st.set_page_config(
-    page_title="ChatGLM3-6B Streamlit Simple Demo",
-    page_icon=":robot:",
-    layout="wide"
-)
+
+application.knowledge_service.init_knowledge_base()
+result2 = application.get_knowledeg_based_answer('请推荐苏州的三个最热门的景点？')
+print('\nresult of knowledge base:\n')
+print(result2)
+
+
 
 # 页面侧边栏控件配置
 max_length = st.sidebar.slider("Max Length", 0, 32768, 8192, step=1)
