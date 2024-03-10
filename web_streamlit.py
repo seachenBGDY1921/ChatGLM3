@@ -26,6 +26,7 @@ class LangChainApplication(object):
         self.knowledge_service = KnowledgeService()
 
     # 获取大语言模型返回的答案（基于本地知识库查询）
+    @st.cache(allow_output_mutation=True)
     def get_knowledeg_based_answer(self, query,
                                    history_len=5,
                                    temperature=0.1,
