@@ -166,41 +166,20 @@ class HFClient(Client):
     @st.cache_resource
     def load_vector_store(self, vector_store_path):
         if vector_store_path and os.path.exists(vector_store_path):
-            return FAISS.load_local(
+            FAISS.load_local(
                 self.vector_store_path,
                 self.embedding_function,
                 index_name=index_name,
                 allow_dangerous_deserialization=True
             )
-        return None
+        return FAISS.load_local
 
-    def answer_from_knowledge_base(self, query_embedding):
-        if self.load_vector_store() and self.embedding_function and self.model:
-            # 搜索最相似的文档
-            similar_documents = self.load_vector_store().search(query_embedding, k=3)
-            if similar_documents:
-                # 处理相似文档并生成回答
-                documents_text = [doc['content'] for doc in similar_documents[0]]
-                combined_text = ' '.join(documents_text)  # 将所有相关文档的文本合并为一个字符串
-
-                # 使用合并的文本作为聊天模型的上下文
-                inputs = self.tokenizer.encode(combined_text, return_tensors='pt', max_length=512)
-                inputs = {key: val.to(self.device) for key, val in inputs.items()}
-                # 生成回答
-                outputs = self.model.generate(**inputs, max_length=256, num_return_sequences=1)
-
-                # 解码生成的文本
-                response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-                # 返回生成的回答和相关文档信息
-                return {
-                    'answer': response,
-                    'documents': similar_documents[0]  # 返回最相似的文档列表
-                }
-            else:
-                return None
-        return None
-
+    def retrieve_documents(self, query: str):
+        # 确保向量存储已加载
+        self.load_vector_store()
+        # 使用loaded_vector_store进行文档检索
+        results = self.loaded_vector_store.similarity_search_with_score(query)
+        return results
 
     def generate_stream(
             self,
@@ -223,77 +202,40 @@ class HFClient(Client):
                 'content': conversation.content,
             })
 
-
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
 
-        # 使用用户的查询生成查询嵌入
-        query_embedding = self.embedding_function.encode(query)
 
-        # 从知识库中检索最相似的文档
-        knowledge_base_response = self.answer_from_knowledge_base(query_embedding)
-        if knowledge_base_response:
-            # 如果从知识库中检索到相关文档，将它们的内容作为生成模型的上下文
-            knowledge_base_text = "; ".join(knowledge_base_response['documents'])
+
+        # 使用检索功能获取相关文档
+        retrieved_docs = self.retrieve_documents(query)
+        # 将检索到的文档添加到历史中，以供模型生成响应时使用
+        for doc in retrieved_docs:
             chat_history.append({
-                'role': 'knowledge_base',
-                'content': knowledge_base_text
+                'role': 'document',
+                'content': doc.page_content,
             })
 
-        # 将聊天历史转换为模型的输入格式
-        chat_history_text = "; ".join([doc['content'] for doc in chat_history])
-        inputs = self.tokenizer.encode(chat_history_text, return_tensors='pt', max_length=512)
-        inputs = {key: val.to(self.device) for key, val in inputs.items()}
 
-        # 生成回答
-        outputs = self.model.generate(**inputs, max_length=256, num_return_sequences=1)
 
-        # 解码生成的文本
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        # 构建并返回生成的文本流响应
-        for i, generated_text in enumerate(response.split('\n')):
-            if i > 0:
-                # 从第二个响应开始，每个响应都被视为一个新的生成文本
-                yield TextGenerationStreamResponse(
-                    generated_text=generated_text,
-                    token=Token(
-                        id=0,
-                        logprob=0,
-                        text=generated_text,
-                        special=False,
-                    )
-                )
-
-        # 如果没有检索到相关文档，或者没有生成任何回答，则返回 None
-        if not response:
+        for new_text, _ in stream_chat(
+                self.model,
+                self.tokenizer,
+                query,
+                chat_history,
+                role,
+                **parameters,
+        ):
+            word = new_text.removeprefix(text)
+            word_stripped = word.strip()
+            text = new_text
             yield TextGenerationStreamResponse(
-                generated_text="No response could be generated based on the knowledge base.",
+                generated_text=text,
                 token=Token(
                     id=0,
                     logprob=0,
-                    text="No response could be generated based on the knowledge base.",
-                    special=False,
+                    text=word,
+                    special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
                 )
             )
-        # for new_text, _ in stream_chat(
-        #         self.model,
-        #         self.tokenizer,
-        #         query,
-        #         chat_history,
-        #         role,
-        #         **parameters,
-        # ):
-        #     word = new_text.removeprefix(text)
-        #     word_stripped = word.strip()
-        #     text = new_text
-        #     yield TextGenerationStreamResponse(
-        #         generated_text=text,
-        #         token=Token(
-        #             id=0,
-        #             logprob=0,
-        #             text=word,
-        #             special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
-        #         )
-        #     )
