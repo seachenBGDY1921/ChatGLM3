@@ -10,12 +10,8 @@ from huggingface_hub.inference._text_generation import TextGenerationStreamRespo
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 from transformers.generation.logits_process import LogitsProcessor
 from transformers.generation.utils import LogitsProcessorList
-from conversation import Conversation
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
+from conversation import Conversation
 
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
@@ -131,10 +127,6 @@ class HFClient(Client):
         self.model_path = model_path
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
-        self.embedding = HuggingFaceEmbeddings(model_name='shibing624/text2vec-base-chinese')
-        documents = '/kaggle/ChatGLM3/composite_demo/documents/dasaiyaoqiu.txt'
-        self.document_store = self.create_document_store(documents)
-
         if pt_checkpoint is not None and os.path.exists(pt_checkpoint):
             config = AutoConfig.from_pretrained(
                 model_path,
@@ -157,35 +149,6 @@ class HFClient(Client):
         else:
             self.model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="auto").eval()
             # add .quantize(4).cuda() before .eval() and remove device_map="auto" to use int4 model
-
-    # def retrieve_documents(self, query: str):
-    #     # 导入必要的模块
-    #     # 加载文档、分割文档、加载模型等
-    #     # 假设你已经有了docs变量，包含所有文档
-    #     embedding = HuggingFaceEmbeddings(model_name='shibing624/text2vec-base-chinese')
-    #     library = FAISS.from_documents(documents, embedding)
-    #     qa = RetrievalQA.from_chain_type(llm=self.model, chain_type="stuff", retriever=library.as_retriever())
-    #     results = qa.invoke(query)
-    #     return results
-
-    def create_document_store(self, documents):
-        # 分割文档
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=200,
-            chunk_overlap=30,
-            length_function=len,
-        )
-        docs = text_splitter.split_documents(documents)
-
-        # 创建FAISS索引库
-        library = FAISS.from_documents(docs, self.embedding)
-        return library
-
-    def retrieve_documents(self, query: str):
-        # 使用已经创建好的FAISS索引库检索文档
-        results = self.document_store.similarity_search_with_score(query)
-        return results
-
 
     def generate_stream(
             self,
@@ -211,17 +174,6 @@ class HFClient(Client):
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
-
-        # 使用检索功能获取相关文档
-        retrieved_docs = self.retrieve_documents(query)
-        # 将检索到的文档添加到历史中，以供模型生成响应时使用
-        for doc in retrieved_docs:
-            chat_history.append({
-                'role': 'document',
-                'content': doc.page_content,
-            })
-
-
         for new_text, _ in stream_chat(
                 self.model,
                 self.tokenizer,
