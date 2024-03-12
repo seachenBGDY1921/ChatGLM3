@@ -163,7 +163,7 @@ class HFClient(Client):
             self.model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="auto").eval()
             # add .quantize(4).cuda() before .eval() and remove device_map="auto" to use int4 model
 
-    @st.cache_resource
+
     def load_vector_store(self, vector_store_path):
         if vector_store_path and os.path.exists(vector_store_path):
             FAISS.load_local(
