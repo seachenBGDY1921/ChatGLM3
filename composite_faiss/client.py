@@ -166,19 +166,19 @@ class HFClient(Client):
 
     def load_vector_store(self, vector_store_path):
         if vector_store_path and os.path.exists(vector_store_path):
-            FAISS.load_local(
+            vector_store = FAISS.load_local(
                 self.vector_store_path,
                 self.embedding_function,
                 index_name=index_name,
                 allow_dangerous_deserialization=True
             )
-        return FAISS.load_local
+        return vector_store
 
     def retrieve_documents(self, query: str):
         # 确保向量存储已加载
-        self.load_vector_store(self.vector_store_path)
+        vector_store = self.load_vector_store(self.vector_store_path)
         # 使用loaded_vector_store进行文档检索
-        results = self.loaded_vector_store.similarity_search_with_score(query)
+        results = vector_store.similarity_search_with_score(query)
         return results
 
     def generate_stream(
