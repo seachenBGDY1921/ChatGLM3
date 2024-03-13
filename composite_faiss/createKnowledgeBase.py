@@ -5,7 +5,7 @@ from typing import List
 # import torch
 from multiprocessing import Pool
 from tqdm import tqdm
-from langchain.document_loaders import (
+from  langchain_community.document_loaders import (
     CSVLoader, EverNoteLoader,
     PDFMinerLoader, TextLoader,
     UnstructuredEmailLoader, UnstructuredEPubLoader,

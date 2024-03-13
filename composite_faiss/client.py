@@ -131,7 +131,7 @@ def stream_chat(
 
 
 class HFClient(Client):
-    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str =None):
+    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source'] ):
         self.model_path = model_path
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
