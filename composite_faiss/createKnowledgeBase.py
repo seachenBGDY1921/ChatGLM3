@@ -121,9 +121,9 @@ def main():
 
     # 指定文件夹路径
 
-    folder_save_1 = CONFIG.db_source
+    folder_save_1 = CONFIG['db_source']
 
-    folder_load_2 = CONFIG.db_source
+    folder_load_2 = CONFIG['db_source']
 
     # 创建或指定数据库文件夹
     os.makedirs(folder_save_1, exist_ok=True)
