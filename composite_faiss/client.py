@@ -206,16 +206,25 @@ class HFClient(Client):
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
 
+        # # 使用检索功能获取相关文档
+        # retrieved_docs = self.retrieve_documents(query)
+        # # 将检索到的文档添加到历史中，以供模型生成响应时使用
+        # for doc in retrieved_docs:
+        #     chat_history.append({
+        #         'role': 'document',
+        #         'content': doc.content,
 
 
-        # 使用检索功能获取相关文档
+
         retrieved_docs = self.retrieve_documents(query)
-        # 将检索到的文档添加到历史中，以供模型生成响应时使用
-        for doc in retrieved_docs:
-            chat_history.append({
-                'role': 'document',
-                'content': doc.page_content,
-            })
+        for doc_tuple in retrieved_docs:
+            # 假设 doc_tuple 是一个元组，其中包含一个具有 page_content 属性的对象
+            content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None
+            if content:
+                chat_history.append({
+                    'role': 'document',
+                    'content': content,
+                })
 
 
         for new_text, _ in stream_chat(
