@@ -7,7 +7,7 @@ from config import CONFIG
 # 定义源目录和目标目录
 # os.makedirs('/kaggle/ChatGLM3/composite_faiss/db')
 # source_dir = '/kaggle/ChatGLM3/composite_faiss/db'
-source_dir = CONFIG['doc_source']
+source_dir = CONFIG['db_source']
 target_dir = '/kaggle/working'
 
 # 检查目标目录是否存在，如果不存在则创建
