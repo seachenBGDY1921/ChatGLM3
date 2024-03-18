@@ -17,6 +17,8 @@ from config import CONFIG
 
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
+import time
+
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
 MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
@@ -174,23 +176,12 @@ class HFClient(Client):
             )
         return vector_store
 
-    # def retrieve_documents(self, query: str):
-    #     # 确保向量存储已加载
-    #     vector_store = self.load_vector_store(self.vector_store_path)
-    #     results = vector_store.similarity_search_with_score(query)
-    #     return results
-    def retrieve_documents(self, query: str, threshold_score: float = 0.35):
+    def retrieve_documents(self, query: str):
         # 确保向量存储已加载
         vector_store = self.load_vector_store(self.vector_store_path)
-
+        # 使用loaded_vector_store进行文档检索
         results = vector_store.similarity_search_with_score(query)
-
-        if not results or all(score < threshold_score for score, _ in results):
-            return [("No matching documents found", None)]
-
         return results
-
-
 
     def generate_stream(
             self,
@@ -217,11 +208,22 @@ class HFClient(Client):
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
 
+        start_time = time.time()
+
+        # 是错的
+        # # 使用检索功能获取相关文档
+        # retrieved_docs = self.retrieve_documents(query)
+        # # 将检索到的文档添加到历史中，以供模型生成响应时使用
+        # for doc in retrieved_docs:
+        #     chat_history.append({
+        #         'role': 'document',
+        #         'content': doc.content,
+
+
 
         retrieved_docs = self.retrieve_documents(query)
-
         for doc_tuple in retrieved_docs:
-
+            # 假设 doc_tuple 是一个元组，其中包含一个具有 page_content 属性的对象
             content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None
             if content:
                 chat_history.append({
@@ -229,65 +231,31 @@ class HFClient(Client):
                     'content': content,
                 })
 
+        # 结束测量时间
+        end_time = time.time()
 
-        if not retrieved_docs or all(doc[0] == "No matching documents found" for doc in retrieved_docs):
-            chat_history.append({
-                'role': 'document',
-                'content': 'No matching documents found'
-            })
-            default_response = "对不起，您问的问题不在我的知识库范围内，请重新提问。"
+        # 计算并显示所用时间
+        elapsed_time = end_time - start_time
+        st.write(f"生成回答所用时间: {elapsed_time:.2f} 秒")
+
+
+        for new_text, _ in stream_chat(
+                self.model,
+                self.tokenizer,
+                query,
+                chat_history,
+                role,
+                **parameters,
+        ):
+            word = new_text.removeprefix(text)
+            word_stripped = word.strip()
+            text = new_text
             yield TextGenerationStreamResponse(
-                generated_text=default_response,
+                generated_text=text,
                 token=Token(
                     id=0,
                     logprob=0,
-                    text=default_response,
-                    special=False,
+                    text=word,
+                    special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
                 )
             )
-
-
-        else:
-            for new_text, _ in stream_chat(
-                    self.model,
-                    self.tokenizer,
-                    query,
-                    chat_history,
-                    role,
-                    **parameters,
-            ):
-                word = new_text.removeprefix(text)
-                word_stripped = word.strip()
-                text = new_text
-                yield TextGenerationStreamResponse(
-                    generated_text=text,
-                    token=Token(
-                        id=0,
-                        logprob=0,
-                        text=word,
-                        special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
-                    )
-                )
-
-
-
-        # for new_text, _ in stream_chat(
-        #         self.model,
-        #         self.tokenizer,
-        #         query,
-        #         chat_history,
-        #         role,
-        #         **parameters,
-        # ):
-        #     word = new_text.removeprefix(text)
-        #     word_stripped = word.strip()
-        #     text = new_text
-        #     yield TextGenerationStreamResponse(
-        #         generated_text=text,
-        #         token=Token(
-        #             id=0,
-        #             logprob=0,
-        #             text=word,
-        #             special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
-        #         )
-        #     )
