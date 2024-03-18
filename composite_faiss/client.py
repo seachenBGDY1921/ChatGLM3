@@ -224,14 +224,14 @@ class HFClient(Client):
                             {retrieved_content}
                             问题:
                             {query}"""
-            query = prompt
+
 
         text = ''
 
         for new_text, _ in stream_chat(
                 self.model,
                 self.tokenizer,
-                query,
+                prompt,
                 chat_history,
                 role,
                 **parameters,
