@@ -131,8 +131,10 @@ def stream_chat(
 
 
 class HFClient(Client):
-    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source'] ):
+    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source']):
+
         self.model_path = model_path
+
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
         self.embedding_function = SentenceTransformerEmbeddings(model_name=embeddings_model_name)
@@ -190,7 +192,7 @@ class HFClient(Client):
     ) -> Iterable[TextGenerationStreamResponse]:
         chat_history = [{
             'role': 'system',
-            'content': system if not tools else TOOL_PROMPT,
+            'content': system if system else TOOL_PROMPT,
         }]
 
         if tools:
@@ -204,29 +206,27 @@ class HFClient(Client):
 
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
-        text = ''
 
-        # 是错的
-        # # 使用检索功能获取相关文档
-        # retrieved_docs = self.retrieve_documents(query)
-        # # 将检索到的文档添加到历史中，以供模型生成响应时使用
-        # for doc in retrieved_docs:
-        #     chat_history.append({
-        #         'role': 'document',
-        #         'content': doc.content,
-
-
-
+        # 使用检索功能获取相关文档
         retrieved_docs = self.retrieve_documents(query)
+        retrieved_content = ""
         for doc_tuple in retrieved_docs:
             # 假设 doc_tuple 是一个元组，其中包含一个具有 page_content 属性的对象
             content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None
             if content:
-                chat_history.append({
-                    'role': 'document',
-                    'content': content,
-                })
+                retrieved_content += content + "\n"
 
+        # 如果检索到相关文档，则将它们格式化成特定的提示格式
+        if retrieved_content:
+            prompt = f"""基于以下已知信息，严格按照信息简洁和专业的来回答用户的问题,不需要回复"根据已知信息"。
+                            如果无法从中得到答案，请说 "非常抱歉！世界库知识检索失败！判断非本世界知识或产物。"，不允许在答案中添加编造成分，答案请使用中文。
+                            已知内容:
+                            {retrieved_content}
+                            问题:
+                            {query}"""
+            query = prompt
+
+        text = ''
 
         for new_text, _ in stream_chat(
                 self.model,

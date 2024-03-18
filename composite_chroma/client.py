@@ -157,6 +157,7 @@ class HFClient(Client):
             history: list[Conversation],
             **parameters: Any
     ) -> Iterable[TextGenerationStreamResponse]:
+
         chat_history = [{
             'role': 'system',
             'content': system if not tools else TOOL_PROMPT,
@@ -174,6 +175,7 @@ class HFClient(Client):
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
+
         for new_text, _ in stream_chat(
                 self.model,
                 self.tokenizer,

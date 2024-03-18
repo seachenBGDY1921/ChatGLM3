@@ -17,8 +17,6 @@ from config import CONFIG
 
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
-import time
-
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
 MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
@@ -133,8 +131,10 @@ def stream_chat(
 
 
 class HFClient(Client):
-    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source'] ):
+    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source']):
+
         self.model_path = model_path
+
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
 
         self.embedding_function = SentenceTransformerEmbeddings(model_name=embeddings_model_name)
@@ -208,8 +208,6 @@ class HFClient(Client):
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
 
-        start_time = time.time()
-
         # 是错的
         # # 使用检索功能获取相关文档
         # retrieved_docs = self.retrieve_documents(query)
@@ -230,13 +228,6 @@ class HFClient(Client):
                     'role': 'document',
                     'content': content,
                 })
-
-        # 结束测量时间
-        end_time = time.time()
-
-        # 计算并显示所用时间
-        elapsed_time = end_time - start_time
-        st.write(f"生成回答所用时间: {elapsed_time:.2f} 秒")
 
 
         for new_text, _ in stream_chat(
