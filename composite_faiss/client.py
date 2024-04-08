@@ -10,12 +10,8 @@ from huggingface_hub.inference._text_generation import TextGenerationStreamRespo
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 from transformers.generation.logits_process import LogitsProcessor
 from transformers.generation.utils import LogitsProcessorList
+
 from conversation import Conversation
-
-from langchain_community.vectorstores import FAISS
-from config import CONFIG
-
-from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
 TOOL_PROMPT = 'Answer the following questions as best as you can. You have access to the following tools:'
 
@@ -24,14 +20,10 @@ PT_PATH = os.environ.get('PT_PATH', None)
 PRE_SEQ_LEN = int(os.environ.get("PRE_SEQ_LEN", 128))
 TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
 
-vector_store_path = CONFIG['db_source']
-embeddings_model_name = CONFIG['embedding_model']
-index_name = 'my_index'
-
 
 @st.cache_resource
 def get_client() -> Client:
-    client = HFClient(MODEL_PATH, TOKENIZER_PATH, PT_PATH, vector_store_path)
+    client = HFClient(MODEL_PATH, TOKENIZER_PATH, PT_PATH)
     return client
 
 
@@ -131,16 +123,9 @@ def stream_chat(
 
 
 class HFClient(Client):
-    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, vector_store_path: str = CONFIG['db_source']):
-
+    def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None):
         self.model_path = model_path
-
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
-
-        self.embedding_function = SentenceTransformerEmbeddings(model_name=embeddings_model_name)
-
-        self.vector_store_path = vector_store_path
-
 
         if pt_checkpoint is not None and os.path.exists(pt_checkpoint):
             config = AutoConfig.from_pretrained(
@@ -153,7 +138,8 @@ class HFClient(Client):
                 trust_remote_code=True,
                 config=config,
                 device_map="auto").eval()
-            # add .quantize(4).cuda() before .eval() and remove device_map="auto" to use int4 model
+            # add .quantize(bits=4, device="cuda").cuda() before .eval() and remove device_map="auto" to use int4 model
+            # must use cuda to load int4 model
             prefix_state_dict = torch.load(os.path.join(pt_checkpoint, "pytorch_model.bin"))
             new_prefix_state_dict = {}
             for k, v in prefix_state_dict.items():
@@ -163,34 +149,8 @@ class HFClient(Client):
             self.model.transformer.prefix_encoder.load_state_dict(new_prefix_state_dict)
         else:
             self.model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="auto").eval()
-            # add .quantize(4).cuda() before .eval() and remove device_map="auto" to use int4 model
-
-
-    def load_vector_store(self, vector_store_path):
-        if vector_store_path and os.path.exists(vector_store_path):
-            vector_store = FAISS.load_local(
-                self.vector_store_path,
-                self.embedding_function,
-                index_name=index_name,
-                allow_dangerous_deserialization=True
-            )
-        return vector_store
-
-    def retrieve_documents(self, query: str):
-        # 确保向量存储已加载
-        vector_store = self.load_vector_store(self.vector_store_path)
-        # 使用loaded_vector_store进行文档检索
-        retriever = vector_store.as_retriever(
-            search_type="similarity_score_threshold",
-            search_kwargs={"score_threshold": 0.5}
-        )
-        retrieved_docs = retriever.get_relevant_documents(query)
-        if retrieved_docs:
-            return retrieved_docs
-        else:
-            return None
-
-
+            # add .quantize(bits=4, device="cuda").cuda() before .eval() and remove device_map="auto" to use int4 model
+            # must use cuda to load int4 model
 
     def generate_stream(
             self,
@@ -216,38 +176,6 @@ class HFClient(Client):
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
-
-        # 是错的
-        # # 使用检索功能获取相关文档
-        # retrieved_docs = self.retrieve_documents(query)
-        # # 将检索到的文档添加到历史中，以供模型生成响应时使用
-        # for doc in retrieved_docs:
-        #     chat_history.append({
-        #         'role': 'document',
-        #         'content': doc.content,
-        #         })
-
-
-
-        retrieved_docs = self.retrieve_documents(query)
-        if not retrieved_docs:
-            default_message = "您的问题不在知识库范围内"
-            chat_history.append({
-                'role': 'document',
-                'content': default_message,
-            })
-            return [(default_message, None)]  # 返回一个包含默认消息的元组列表
-        else:
-            for doc_tuple in retrieved_docs:
-
-                content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None
-                if content:
-                    chat_history.append({
-                        'role': 'document',
-                        'content': content,
-                    })
-
-
         for new_text, _ in stream_chat(
                 self.model,
                 self.tokenizer,
