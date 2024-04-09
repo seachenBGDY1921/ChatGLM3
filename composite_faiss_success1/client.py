@@ -218,8 +218,8 @@ class HFClient(Client):
         #         'content': doc.content,
 
 
-
         retrieved_docs = self.retrieve_documents(query)
+
         for doc_tuple in retrieved_docs:
             # 假设 doc_tuple 是一个元组，其中包含一个具有 page_content 属性的对象
             content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None

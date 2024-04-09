@@ -70,7 +70,7 @@ def main(
                 stop_sequences=[str(Role.USER)],
                 repetition_penalty=repetition_penalty,
         ):
-            token = response.tokenz
+            token = response.token
             if response.token.special:
                 print("\n==Output:==\n", output_text)
                 match token.text.strip():
@@ -80,7 +80,7 @@ def main(
                         st.error(f'Unexpected special token: {token.text.strip()}')
                         break
             output_text += response.token.text
-            output_text += 'aaaaaaa'
+
             markdown_placeholder.markdown(postprocess_text(output_text + '▌'))
 
         append_conversation(Conversation(

@@ -176,7 +176,7 @@ class HFClient(Client):
         query = history[-1].content
         role = str(history[-1].role).removeprefix('<|').removesuffix('|>')
         text = ''
-        for new_text, _ in chat_history(
+        for new_text, _ in stream_chat(
                 self.model,
                 self.tokenizer,
                 query,
