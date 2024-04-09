@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 st.set_page_config(
     page_title="ChatGLM3 Demo",
@@ -22,6 +23,14 @@ st.title("ChatGLM3 Demo")
 st.markdown(
     "<sub>智谱AI 公开在线技术文档: https://lslfd0slxc.feishu.cn/wiki/WvQbwIJ9tiPAxGk8ywDck6yfnof </sub> \n\n <sub> 更多 ChatGLM3-6B 的使用方法请参考文档。</sub>",
     unsafe_allow_html=True)
+
+script_dir = os.path.dirname(__file__)
+
+wave_css_path = os.path.join(script_dir, 'wave.css')
+with open(wave_css_path) as f:
+    css = f.read()
+
+st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 
 class Mode(str, Enum):
