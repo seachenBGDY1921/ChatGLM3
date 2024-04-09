@@ -13,16 +13,16 @@ import demo_chat
 from enum import Enum
 
 DEFAULT_SYSTEM_PROMPT = '''
-Follow the user's instructions carefully. Respond using markdown.请根据知识库里的文档回答，如果找不到答案，请说：抱歉，您提出的问题不在知识库范围内
+请根据知识库中的信息，为用户提供关于苏州旅游的相关知识和建议。可以包括但不限于苏州的著名景点、美食推荐、住宿选择、旅行路线规划以及文化活动等。如果用户询问的问题超出了知识库的范围，或者需要实时数据，请告知用户：抱歉，我无法提供实时旅游信息或超出知识库范围的内容。同时，所有回答都请使用Markdown格式呈现。
 '''.strip()
 
 # Set the title of the demo
 st.title("ChatGLM3 Demo")
 
 # Add your custom text here, with smaller font size
-st.markdown(
-    "<sub>智谱AI 公开在线技术文档: https://lslfd0slxc.feishu.cn/wiki/WvQbwIJ9tiPAxGk8ywDck6yfnof </sub> \n\n <sub> 更多 ChatGLM3-6B 的使用方法请参考文档。</sub>",
-    unsafe_allow_html=True)
+# st.markdown(
+#     "<sub>智谱AI 公开在线技术文档: https://lslfd0slxc.feishu.cn/wiki/WvQbwIJ9tiPAxGk8ywDck6yfnof </sub> \n\n <sub> 更多 ChatGLM3-6B 的使用方法请参考文档。</sub>",
+#     unsafe_allow_html=True)
 
 script_dir = os.path.dirname(__file__)
 
