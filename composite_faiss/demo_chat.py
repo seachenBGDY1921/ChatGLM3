@@ -80,7 +80,7 @@ def main(
                         st.error(f'Unexpected special token: {token.text.strip()}')
                         break
             output_text += response.token.text
-
+            output_text += 'aaaaaa'
             markdown_placeholder.markdown(postprocess_text(output_text + '▌'))
 
         append_conversation(Conversation(

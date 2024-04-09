@@ -34,7 +34,7 @@ st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 
 class Mode(str, Enum):
-    CHAT =  '💬 Chat'
+    CHAT = '💬 Chat'
 
 
 with st.sidebar:
