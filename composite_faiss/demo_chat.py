@@ -70,7 +70,7 @@ def main(
                 stop_sequences=[str(Role.USER)],
                 repetition_penalty=repetition_penalty,
         ):
-            token = response.token
+            token = response.tokenz
             if response.token.special:
                 print("\n==Output:==\n", output_text)
                 match token.text.strip():
