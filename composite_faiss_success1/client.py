@@ -183,6 +183,20 @@ class HFClient(Client):
         results = vector_store.similarity_search_with_score(query)
         return results
 
+    def get_document(self,query: str):
+        retrieved_docs = self.retrieve_documents(query)
+        # 按照得分对检索到的文档进行排序，得分由高到低
+        retrieved_docs = sorted(retrieved_docs, key=lambda x: x[1], reverse=True)
+
+        # 提取得分最高的文档
+        top_document = retrieved_docs[0][0] if retrieved_docs else None
+
+        # 如果有找到文档，从文档中提取内容作为答案
+        if top_document:
+            answer_content = top_document.page_content
+            # 现在，answer_content 包含了得分最高文档的内容
+        return answer_content
+
     def generate_stream(
             self,
             system: str | None,
@@ -217,19 +231,7 @@ class HFClient(Client):
         #         'role': 'document',
         #         'content': doc.content,
 
-
-        retrieved_docs = self.retrieve_documents(query)
-
-        print(retrieved_docs)
-
-        for doc_tuple in retrieved_docs:
-            # 假设 doc_tuple 是一个元组，其中包含一个具有 page_content 属性的对象
-            content = doc_tuple[0].page_content if isinstance(doc_tuple[0], dict) else None
-            if content:
-                chat_history.append({
-                    'role': 'document',
-                    'content': content,
-                })
+        self.results = self.get_document(query)
 
 
         for new_text, _ in stream_chat(
@@ -252,3 +254,4 @@ class HFClient(Client):
                     special=word_stripped.startswith('<|') and word_stripped.endswith('|>'),
                 )
             )
+

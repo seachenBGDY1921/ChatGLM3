@@ -1,11 +1,9 @@
 import os
 from langchain_community.vectorstores import FAISS
-from config import CONFIG
-
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
-vector_store_path = CONFIG['db_source']
-embeddings_model_name = CONFIG['embedding_model']
+vector_store_path = '/kaggle/working'
+embeddings_model_name = "shibing624/text2vec-base-chinese"
 index_name = 'my_index'
 embedding_function = SentenceTransformerEmbeddings(model_name=embeddings_model_name)
 
@@ -28,5 +26,5 @@ def retrieve_documents(query: str):
     return results
 
 
-
+query = '苏州市高新区枫桥街道西部白马涧生态园龙池风景区有什么景点'
 retrieved_docs = retrieve_documents(query)
