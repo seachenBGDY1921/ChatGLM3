@@ -82,6 +82,7 @@ def main(
             output_text += response.token.text
             markdown_placeholder.markdown(postprocess_text(output_text + '▌'))
 
+
         append_conversation(Conversation(
             Role.ASSISTANT,
             postprocess_text(output_text),

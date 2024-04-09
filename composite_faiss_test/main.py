@@ -19,10 +19,6 @@ DEFAULT_SYSTEM_PROMPT = '''
 # Set the title of the demo
 st.title("ChatGLM3 Demo")
 
-# Add your custom text here, with smaller font size
-# st.markdown(
-#     "<sub>智谱AI 公开在线技术文档: https://lslfd0slxc.feishu.cn/wiki/WvQbwIJ9tiPAxGk8ywDck6yfnof </sub> \n\n <sub> 更多 ChatGLM3-6B 的使用方法请参考文档。</sub>",
-#     unsafe_allow_html=True)
 
 script_dir = os.path.dirname(__file__)
 
