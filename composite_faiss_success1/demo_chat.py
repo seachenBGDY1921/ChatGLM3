@@ -82,7 +82,7 @@ def main(
             output_text += response.token.text
             markdown_placeholder.markdown(postprocess_text(output_text + '▌'))
 
-        output_text += client.results
+        # output_text += client.results
 
         append_conversation(Conversation(
             Role.ASSISTANT,

@@ -232,6 +232,14 @@ class HFClient(Client):
         #         'content': doc.content,
 
         self.results = self.get_document(query)
+        if self.results:
+            prompt = f"""基于以下检索到的文档，并加上你所知道的苏州旅游知识库的信息来回答用户的问题,请尽可能贴近检索到的文档，不需要回复"根据检索到的文档"。
+                            如果无法从中得到答案，请说 "非常抱歉！世界库知识检索失败！判断非本世界知识或产物。"，不允许在答案中添加编造成分，答案请使用中文。
+                            检索到的文档:
+                            {self.results}
+                            问题:
+                            {query}"""
+            query =prompt
 
 
         for new_text, _ in stream_chat(
