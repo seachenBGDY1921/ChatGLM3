@@ -239,7 +239,7 @@ class HFClient(Client):
                             {self.results}
                             问题:
                             {query}"""
-            query =prompt
+            query = prompt
 
 
         for new_text, _ in stream_chat(
