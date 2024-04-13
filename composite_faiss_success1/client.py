@@ -183,19 +183,21 @@ class HFClient(Client):
         results = vector_store.similarity_search_with_score(query)
         return results
 
-    def get_document(self,query: str):
+    def get_document(self, query: str):
         retrieved_docs = self.retrieve_documents(query)
         # 按照得分对检索到的文档进行排序，得分由高到低
         retrieved_docs = sorted(retrieved_docs, key=lambda x: x[1], reverse=True)
 
-        # 提取得分最高的文档
-        top_document = retrieved_docs[0][0] if retrieved_docs else None
+        # 提取得分最高的前三个文档
+        top_documents = retrieved_docs[:3] if len(retrieved_docs) >= 3 else retrieved_docs
 
-        # 如果有找到文档，从文档中提取内容作为答案
-        if top_document:
-            answer_content = top_document.page_content
-            # 现在，answer_content 包含了得分最高文档的内容
-        return answer_content
+        # 组合前三个文档的内容
+        combined_content = ""
+        for doc in top_documents:
+            if doc:
+                combined_content += doc[0].page_content + "\n\n"  # 添加换行符以分隔不同文档的内容
+
+        return combined_content
 
     def generate_stream(
             self,
@@ -233,12 +235,17 @@ class HFClient(Client):
 
         self.results = self.get_document(query)
         if self.results:
-            prompt = f"""基于以下检索到的文档，并加上你所知道的苏州旅游知识库的信息来回答用户的问题,请尽可能贴近检索到的文档，不需要回复"根据检索到的文档"。
-                            如果无法从中得到答案，请说 "非常抱歉！世界库知识检索失败！判断非本世界知识或产物。"，不允许在答案中添加编造成分，答案请使用中文。
-                            检索到的文档:
-                            {self.results}
-                            问题:
-                            {query}"""
+            prompt = f"""
+            基于检索到的信息和你对苏州旅游了解，回答用户的问题。请确保答案详实而准确，围绕用户的查询点提供有用的信息，同时保持语言的自然和通顺。在回答时，尽量综合利用检索到的文档内容，并适当融入你所知的苏州旅游相关知识，但不要明确提及"根据检索到的文档"这一表述。在可能的情况下，提供具体细节，比如历史背景、文化特色、旅游景点介绍、美食推荐等，使答案更加丰富和吸引人。
+
+            检索到的文档内容如下：
+            {self.results}
+
+            用户提出的问题是：
+            {query}
+
+            请结合上述内容，用中文撰写你的回答：
+            """
             query = prompt
 
 
